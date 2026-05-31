@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bankcards
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bankcards
+    username: bank
+    password: bank
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  liquibase:
+    change-log: classpath:db/migration/db.changelog-master.yaml
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-a-very-long-secret-key-at-least-256-bits-long-for-hs256}
+    expiration-ms: 86400000
+  card:
+    encryption-key: ${CARD_ENCRYPTION_KEY:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

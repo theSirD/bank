@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-seed-roles
+      author: bankcards
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: name
+                  value: ROLE_ADMIN
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: name
+                  value: ROLE_USER
+  - changeSet:
+      id: 005-seed-users
+      author: bankcards
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: email
+                  value: admin@bank.local
+              - column:
+                  name: password_hash
+                  value: $2a$10$Gz7XSi./m3efPBXZt5bHoOyyK1DR4dODm7LuB3KaUYYeWiin3ynr2
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: user
+              - column:
+                  name: email
+                  value: user@bank.local
+              - column:
+                  name: password_hash
+                  value: $2a$10$wr4ZhyBE1xLkkEGMr0RpOOfio.9ZTU0gT.ejjyhexlXcmEmyjexGi
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - sql:
+            sql: >
+              INSERT INTO user_roles (user_id, role_id)
+              SELECT u.id, r.id FROM users u, roles r
+              WHERE u.username = 'admin' AND r.name = 'ROLE_ADMIN'
+        - sql:
+            sql: >
+              INSERT INTO user_roles (user_id, role_id)
+              SELECT u.id, r.id FROM users u, roles r
+              WHERE u.username = 'user' AND r.name = 'ROLE_USER'

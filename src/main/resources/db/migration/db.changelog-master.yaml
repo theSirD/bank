@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/migration/changes/001-create-roles.yaml
+  - include:
+      file: db/migration/changes/002-create-users.yaml
+  - include:
+      file: db/migration/changes/003-create-user-roles.yaml
+  - include:
+      file: db/migration/changes/004-create-cards-and-block-requests.yaml
+  - include:
+      file: db/migration/changes/005-seed-roles-and-users.yaml
