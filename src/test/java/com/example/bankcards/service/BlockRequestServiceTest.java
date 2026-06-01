@@ -13,6 +13,7 @@ import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.BlockRequestRepository;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.util.SecurityUtils;
+import java.time.YearMonth;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,6 +90,9 @@ class BlockRequestServiceTest {
         card.setId(10L);
         card.setStatus(CardStatus.BLOCK_REQUESTED);
         card.setPanLast4("4242");
+        YearMonth nextYear = YearMonth.now().plusYears(1);
+        card.setExpiryMonth(nextYear.getMonthValue());
+        card.setExpiryYear(nextYear.getYear());
         User owner = new User();
         owner.setId(1L);
         owner.setUsername("user");
@@ -108,6 +112,37 @@ class BlockRequestServiceTest {
 
         assertEquals(BlockRequestStatus.REJECTED, blockRequest.getStatus());
         assertEquals(CardStatus.ACTIVE, card.getStatus());
+        verify(cardRepository).save(card);
+    }
+
+    @Test
+    void reject_setsCardExpiredWhenPastExpiry() {
+        Card card = new Card();
+        card.setId(10L);
+        card.setStatus(CardStatus.BLOCK_REQUESTED);
+        card.setPanLast4("4242");
+        YearMonth lastMonth = YearMonth.now().minusMonths(1);
+        card.setExpiryMonth(lastMonth.getMonthValue());
+        card.setExpiryYear(lastMonth.getYear());
+        User owner = new User();
+        owner.setId(1L);
+        owner.setUsername("user");
+        card.setOwner(owner);
+
+        BlockRequest blockRequest = new BlockRequest();
+        blockRequest.setId(7L);
+        blockRequest.setCard(card);
+        blockRequest.setUser(owner);
+        blockRequest.setStatus(BlockRequestStatus.PENDING);
+
+        when(blockRequestRepository.findById(7L)).thenReturn(Optional.of(blockRequest));
+        when(userService.findUser(1L)).thenReturn(owner);
+        when(blockRequestRepository.save(any(BlockRequest.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        blockRequestService.reject(7L);
+
+        assertEquals(BlockRequestStatus.REJECTED, blockRequest.getStatus());
+        assertEquals(CardStatus.EXPIRED, card.getStatus());
         verify(cardRepository).save(card);
     }
 }
