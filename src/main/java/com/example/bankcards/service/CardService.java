@@ -3,6 +3,7 @@ package com.example.bankcards.service;
 import com.example.bankcards.dto.BalanceResponse;
 import com.example.bankcards.dto.CardCreateRequest;
 import com.example.bankcards.dto.CardResponse;
+import com.example.bankcards.dto.CardUpdateRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.User;
@@ -75,6 +76,19 @@ public class CardService {
     public CardResponse blockCard(Long id) {
         Card card = findCard(id);
         card.setStatus(CardStatus.BLOCKED);
+        return CardMapper.toResponse(cardRepository.save(card));
+    }
+
+    @Transactional
+    public CardResponse updateCard(Long id, CardUpdateRequest request) {
+        Card card = findCard(id);
+        if (request.expiryMonth() != null) {
+            card.setExpiryMonth(request.expiryMonth());
+        }
+        if (request.expiryYear() != null) {
+            card.setExpiryYear(request.expiryYear());
+        }
+        card.setStatus(resolveInitialStatus(card));
         return CardMapper.toResponse(cardRepository.save(card));
     }
 
