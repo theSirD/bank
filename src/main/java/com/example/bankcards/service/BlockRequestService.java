@@ -74,7 +74,7 @@ public class BlockRequestService {
         blockRequest.setResolvedAt(Instant.now());
         blockRequest.setResolvedBy(userService.findUser(SecurityUtils.currentUserId()));
         Card card = blockRequest.getCard();
-        card.setStatus(CardStatus.ACTIVE);
+        card.setStatus(card.isExpiredByDate() ? CardStatus.EXPIRED : CardStatus.ACTIVE);
         cardRepository.save(card);
         return toResponse(blockRequestRepository.save(blockRequest));
     }
