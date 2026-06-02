@@ -25,17 +25,17 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: pan_last4
-                  type: CHAR(4)
+                  type: VARCHAR(4)
                   constraints:
                     nullable: false
               - column:
                   name: expiry_month
-                  type: SMALLINT
+                  type: INTEGER
                   constraints:
                     nullable: false
               - column:
                   name: expiry_year
-                  type: SMALLINT
+                  type: INTEGER
                   constraints:
                     nullable: false
               - column:

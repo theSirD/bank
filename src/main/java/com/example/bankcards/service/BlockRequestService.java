@@ -16,6 +16,7 @@ import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,11 +35,11 @@ public class BlockRequestService {
         Card card = cardService.findCardForUser(cardId, userId);
         cardService.syncExpiredStatus(card);
         if (card.getStatus() != CardStatus.ACTIVE) {
-            throw new BusinessException("Only active cards can be submitted for block request");
+            throw new BusinessException("Only active cards can be submitted for block request", HttpStatus.CONFLICT);
         }
         blockRequestRepository.findByCardIdAndStatus(cardId, BlockRequestStatus.PENDING)
                 .ifPresent(br -> {
-                    throw new BusinessException("Pending block request already exists for this card");
+                    throw new BusinessException("Pending block request already exists for this card", HttpStatus.CONFLICT);
                 });
         BlockRequest blockRequest = new BlockRequest();
         blockRequest.setCard(card);

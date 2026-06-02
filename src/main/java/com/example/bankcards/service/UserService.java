@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,10 +30,10 @@ public class UserService {
     @Transactional
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByUsername(request.username())) {
-            throw new BusinessException("Username already exists");
+            throw new BusinessException("Username already exists", HttpStatus.CONFLICT);
         }
         if (request.email() != null && userRepository.existsByEmail(request.email())) {
-            throw new BusinessException("Email already exists");
+            throw new BusinessException("Email already exists", HttpStatus.CONFLICT);
         }
         User user = new User();
         user.setUsername(request.username());

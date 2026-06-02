@@ -11,6 +11,7 @@ import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.util.SecurityUtils;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ public class TransferService {
     public TransferResponse transfer(TransferRequest request) {
         Long userId = SecurityUtils.currentUserId();
         if (request.fromCardId().equals(request.toCardId())) {
-            throw new BusinessException("Cannot transfer to the same card");
+            throw new BusinessException("Cannot transfer to the same card", HttpStatus.CONFLICT);
         }
         Card from = cardRepository.findById(request.fromCardId())
                 .orElseThrow(() -> new BusinessException("Source card not found"));
@@ -50,7 +51,7 @@ public class TransferService {
 
     private void validateForTransfer(Card card) {
         if (card.getStatus() != CardStatus.ACTIVE) {
-            throw new BusinessException("Card must be ACTIVE for transfers: " + card.getStatus());
+            throw new BusinessException("Card must be ACTIVE for transfers: " + card.getStatus(), HttpStatus.CONFLICT);
         }
         if (card.isExpiredByDate()) {
             throw new BusinessException("Card is expired");
