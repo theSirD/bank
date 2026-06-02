@@ -1,6 +1,7 @@
 package com.example.bankcards.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,8 @@ import com.example.bankcards.repository.CardRepository;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Optional;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +35,8 @@ class CardServiceUpdateTest {
 
     @InjectMocks
     private CardService cardService;
+
+    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
     void updateCard_updatesExpiryFields() {
@@ -55,6 +60,36 @@ class CardServiceUpdateTest {
         cardService.updateCard(2L, new CardUpdateRequest(lastMonth.getMonthValue(), lastMonth.getYear()));
 
         assertEquals(CardStatus.EXPIRED, card.getStatus());
+    }
+
+    @Test
+    void updateCard_keepsBlockedStatus() {
+        Card card = buildCard(3L, YearMonth.now().plusMonths(2), CardStatus.BLOCKED);
+        when(cardRepository.findById(3L)).thenReturn(Optional.of(card));
+        when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        cardService.updateCard(3L, new CardUpdateRequest(12, 2030));
+
+        assertEquals(CardStatus.BLOCKED, card.getStatus());
+    }
+
+    @Test
+    void updateCard_keepsBlockRequestedStatus() {
+        Card card = buildCard(4L, YearMonth.now().plusMonths(2), CardStatus.BLOCK_REQUESTED);
+        when(cardRepository.findById(4L)).thenReturn(Optional.of(card));
+        when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        cardService.updateCard(4L, new CardUpdateRequest(12, 2030));
+
+        assertEquals(CardStatus.BLOCK_REQUESTED, card.getStatus());
+    }
+
+    @Test
+    void cardUpdateRequest_emptyPayloadFailsValidation() {
+        CardUpdateRequest request = new CardUpdateRequest(null, null);
+        var violations = validator.validate(request);
+        assertTrue(violations.stream()
+                .anyMatch(v -> "At least one field must be provided for update".equals(v.getMessage())));
     }
 
     private Card buildCard(Long id, YearMonth expiry, CardStatus status) {

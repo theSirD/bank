@@ -419,6 +419,8 @@ components:
           type: number
     CardUpdateRequest:
       type: object
+      description: At least one field must be provided.
+      minProperties: 1
       properties:
         expiryMonth:
           type: integer

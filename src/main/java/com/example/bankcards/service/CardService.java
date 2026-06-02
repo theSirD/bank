@@ -88,7 +88,7 @@ public class CardService {
         if (request.expiryYear() != null) {
             card.setExpiryYear(request.expiryYear());
         }
-        card.setStatus(resolveInitialStatus(card));
+        card.setStatus(resolveStatusAfterUpdate(card));
         return CardMapper.toResponse(cardRepository.save(card));
     }
 
@@ -150,6 +150,14 @@ public class CardService {
     }
 
     private CardStatus resolveInitialStatus(Card card) {
+        return card.isExpiredByDate() ? CardStatus.EXPIRED : CardStatus.ACTIVE;
+    }
+
+    private CardStatus resolveStatusAfterUpdate(Card card) {
+        CardStatus currentStatus = card.getStatus();
+        if (currentStatus == CardStatus.BLOCKED || currentStatus == CardStatus.BLOCK_REQUESTED) {
+            return currentStatus;
+        }
         return card.isExpiredByDate() ? CardStatus.EXPIRED : CardStatus.ACTIVE;
     }
 
