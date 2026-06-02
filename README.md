@@ -20,7 +20,7 @@ Backend API для управления банковскими картами: �
 
 ## Быстрый старт
 
-### Вариант A: полностью в Docker (приложение + PostgreSQL)
+### Полностью в Docker (приложение + PostgreSQL)
 
 Перед запуском создай `.env` в корне проекта:
 
@@ -38,21 +38,7 @@ docker compose up --build
 - API: http://localhost:8080
 - Swagger UI: http://localhost:8080/swagger-ui.html
 
-### Вариант B: локально (приложение на хосте, БД в Docker)
-
-#### 1) Запустить PostgreSQL
-
-```bash
-docker compose up -d postgres
-```
-
-#### 2) Запустить приложение
-
-```bash
-mvn spring-boot:run
-```
-
-#### 3) Открыть документацию API
+#### Открыть документацию API
 
 - Swagger UI: http://localhost:8080/swagger-ui.html
 
@@ -70,39 +56,6 @@ mvn spring-boot:run
 | `JWT_SECRET` | Секрет HMAC для подписи JWT (желательно не меньше 256 бит); обязателен для Docker Compose |
 | `CARD_ENCRYPTION_KEY` | Base64-строка для AES-ключа длиной 32 байта; обязательна для Docker Compose |
 
-## Пример: вход и получение своих карт
-
-```bash
-# Авторизация
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"user","password":"user123"}' | jq -r .accessToken)
-
-# Список своих карт
-curl -s http://localhost:8080/api/cards?page=0&size=10 \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-## Пример для администратора: создание карты
-
-Используй корректный 16-значный номер карты (Luhn), например: `4111111111111111`.
-
-```bash
-ADMIN_TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}' | jq -r .accessToken)
-
-curl -s -X POST http://localhost:8080/api/admin/cards \
-  -H "Authorization: Bearer $ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "ownerId": 2,
-    "pan": "4111111111111111",
-    "expiryMonth": 12,
-    "expiryYear": 2028,
-    "initialBalance": 1000.00
-  }'
-```
 
 ## Запуск тестов
 
