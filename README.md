@@ -49,13 +49,6 @@ docker compose up --build
 | admin | admin123 | ADMIN |
 | user | user123 | USER |
 
-## Переменные окружения (необязательно)
-
-| Переменная | Назначение |
-|-----------|------------|
-| `JWT_SECRET` | Секрет HMAC для подписи JWT (желательно не меньше 256 бит); обязателен для Docker Compose |
-| `CARD_ENCRYPTION_KEY` | Base64-строка для AES-ключа длиной 32 байта; обязательна для Docker Compose |
-
 
 ## Запуск тестов
 
