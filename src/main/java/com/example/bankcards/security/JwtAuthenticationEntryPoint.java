@@ -14,7 +14,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    
+    public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper.copy().findAndRegisterModules();
+    }
 
     @Override
     public void commence(
@@ -30,7 +34,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 request.getRequestURI(),
                 null);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), body);
+        objectMapper.writeValue(response.getWriter(), body);
     }
 }

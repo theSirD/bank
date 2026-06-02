@@ -1,5 +1,6 @@
 package com.example.bankcards.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -13,5 +14,6 @@ public record CardCreateRequest(
         @NotBlank @Pattern(regexp = "\\d{16}") String pan,
         @Min(1) @Max(12) int expiryMonth,
         @Min(2020) int expiryYear,
+        @JsonAlias("balance")
         @DecimalMin("0.00") BigDecimal initialBalance) {
 }

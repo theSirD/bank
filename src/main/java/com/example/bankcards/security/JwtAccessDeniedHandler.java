@@ -14,7 +14,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    
+    public JwtAccessDeniedHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper.copy().findAndRegisterModules();
+    }
 
     @Override
     public void handle(
@@ -30,7 +34,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
                 request.getRequestURI(),
                 null);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), body);
+        objectMapper.writeValue(response.getWriter(), body);
     }
 }
